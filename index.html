@@ -1,0 +1,737 @@
+<meta charset="utf-8" />
+<title>Bảng Điều Phối Trung Chuyển — HK Buslines</title>
+<style>
+  :root {
+    --ink: #16211a;
+    --ink-soft: #4b5a4c;
+    --paper: #f5f6f1;
+    --paper-raised: #ffffff;
+    --line: #dde1d6;
+    --line-strong: #c4cabb;
+    --accent: #1b5e3f;
+    --accent-ink: #ffffff;
+    --accent-soft: #e4efe6;
+    --accent-soft-line: #bfd8c8;
+    --amber: #8a5a12;
+    --amber-soft: #f4e6cd;
+    --amber-soft-line: #e0c48f;
+    --red: #9c3226;
+    --red-soft: #f6e0dc;
+    --red-soft-line: #e3b3a9;
+    --blue: #2f4d6b;
+    --blue-soft: #dfe7ee;
+    --blue-soft-line: #b7c6d6;
+    --shadow: 0 1px 2px rgba(22,33,26,.06), 0 8px 24px -12px rgba(22,33,26,.18);
+    --radius: 10px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e9ede4;
+      --ink-soft: #a9b6a9;
+      --paper: #10140e;
+      --paper-raised: #171d15;
+      --line: #2a3226;
+      --line-strong: #3a4534;
+      --accent: #55b382;
+      --accent-ink: #0c150f;
+      --accent-soft: #1a2b20;
+      --accent-soft-line: #2e4a37;
+      --amber: #e0b062;
+      --amber-soft: #2c2415;
+      --amber-soft-line: #4a3c1f;
+      --red: #e2897a;
+      --red-soft: #2c1a17;
+      --red-soft-line: #4a2b25;
+      --blue: #9db6d1;
+      --blue-soft: #182531;
+      --blue-soft-line: #2b3f52;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e9ede4; --ink-soft: #a9b6a9; --paper: #10140e; --paper-raised: #171d15;
+    --line: #2a3226; --line-strong: #3a4534; --accent: #55b382; --accent-ink: #0c150f;
+    --accent-soft: #1a2b20; --accent-soft-line: #2e4a37; --amber: #e0b062; --amber-soft: #2c2415;
+    --amber-soft-line: #4a3c1f; --red: #e2897a; --red-soft: #2c1a17; --red-soft-line: #4a2b25;
+    --blue: #9db6d1; --blue-soft: #182531; --blue-soft-line: #2b3f52;
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    --ink: #16211a; --ink-soft: #4b5a4c; --paper: #f5f6f1; --paper-raised: #ffffff;
+    --line: #dde1d6; --line-strong: #c4cabb; --accent: #1b5e3f; --accent-ink: #ffffff;
+    --accent-soft: #e4efe6; --accent-soft-line: #bfd8c8; --amber: #8a5a12; --amber-soft: #f4e6cd;
+    --amber-soft-line: #e0c48f; --red: #9c3226; --red-soft: #f6e0dc; --red-soft-line: #e3b3a9;
+    --blue: #2f4d6b; --blue-soft: #dfe7ee; --blue-soft-line: #b7c6d6;
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .num, .plate, .phone-pill {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  a { color: inherit; }
+  button { font: inherit; }
+
+  /* ── Top bar ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: 1180px; margin: 0 auto; padding: 16px 20px 14px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .brand-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .mark {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: var(--accent); color: var(--accent-ink);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; letter-spacing: -.02em;
+    flex-shrink: 0;
+  }
+  .brand-text h1 {
+    margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .brand-text .sub { font-size: 12.5px; color: var(--ink-soft); margin-top: 1px; }
+
+  .source-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .drop {
+    border: 1.5px dashed var(--line-strong);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    background: var(--paper-raised);
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .drop:hover, .drop.dragover { border-color: var(--accent); color: var(--accent); }
+  .drop input { display: none; }
+  .drop svg { flex-shrink: 0; }
+
+  .preset-group { display: flex; gap: 6px; }
+  .preset-btn {
+    border: 1px solid var(--line-strong); background: var(--paper-raised); color: var(--ink);
+    border-radius: 999px; padding: 6px 13px; font-size: 12.5px; font-weight: 700;
+    cursor: pointer; white-space: nowrap;
+  }
+  .preset-btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent-soft-line); color: var(--accent); }
+
+  .url-field {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--paper-raised); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 6px 6px 6px 12px;
+    flex: 1; min-width: 220px;
+  }
+  .url-field input {
+    border: none; outline: none; background: transparent; color: var(--ink);
+    font-size: 12.5px; flex: 1; min-width: 0;
+  }
+  .url-field input::placeholder { color: var(--ink-soft); }
+  .btn {
+    border: 1px solid var(--line-strong); background: var(--paper-raised); color: var(--ink);
+    border-radius: 7px; padding: 6px 12px; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn:focus-visible, .drop:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .btn-accent { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn-accent:hover { opacity: .92; }
+  .btn-ghost { background: transparent; border-color: transparent; color: var(--ink-soft); }
+  .btn-ghost:hover { color: var(--ink); }
+  .auto-toggle {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
+    cursor: pointer; white-space: nowrap; padding: 6px 4px;
+  }
+  .auto-toggle[hidden] { display: none; }
+  .auto-toggle input { accent-color: var(--accent); cursor: pointer; }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); flex-shrink: 0; }
+  .live-dot.live { background: var(--accent); animation: livepulse 1.8s ease-in-out infinite; }
+  @keyframes livepulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+  @media (prefers-reduced-motion: reduce) { .live-dot.live { animation: none; } }
+  .status-line { font-size: 11.5px; color: var(--ink-soft); }
+  .status-line.err { color: var(--red); }
+  .status-line.ok { color: var(--accent); }
+
+  .filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .search-field {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--paper-raised); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 7px 12px;
+    flex: 1; min-width: 200px; max-width: 340px;
+  }
+  .search-field input { border: none; outline: none; background: transparent; color: var(--ink); font-size: 13px; flex: 1; min-width: 0; }
+  .search-field input::placeholder { color: var(--ink-soft); }
+  .chip-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+  .chip {
+    flex-shrink: 0;
+    border: 1px solid var(--line-strong); background: var(--paper-raised); color: var(--ink-soft);
+    border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 700;
+    cursor: pointer; letter-spacing: .01em;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent-soft-line); color: var(--accent); }
+
+  /* ── Main ── */
+  main { max-width: 1180px; margin: 0 auto; padding: 22px 20px 64px; }
+
+  .summary-strip {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px; background: var(--line);
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .summary-cell { background: var(--paper-raised); padding: 12px 16px; }
+  .summary-cell .n { font-size: 22px; font-weight: 800; letter-spacing: -.01em; }
+  .summary-cell .lbl { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; margin-top: 2px; }
+
+  .empty {
+    border: 1px dashed var(--line-strong); border-radius: 14px;
+    padding: 56px 24px; text-align: center; color: var(--ink-soft);
+  }
+  .empty h2 { color: var(--ink); font-size: 17px; margin: 14px 0 6px; text-wrap: balance; }
+  .empty p { font-size: 13.5px; max-width: 460px; margin: 0 auto 4px; }
+  .empty code { font-family: ui-monospace, monospace; font-size: 12px; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+  .empty .sample-link { color: var(--accent); font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; background: none; border: none; padding: 0; font-size: 13.5px; }
+
+  .trip-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .trip-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .trip-head {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--accent-soft), transparent 130%);
+  }
+  .trip-card.unrouted .trip-head { background: linear-gradient(180deg, var(--amber-soft), transparent 130%); }
+  .trip-time { font-size: 26px; font-weight: 800; letter-spacing: -.02em; line-height: 1; min-width: 64px; }
+  .trip-route { display: flex; flex-direction: column; gap: 1px; }
+  .trip-route .code { font-weight: 800; font-size: 13.5px; letter-spacing: .01em; }
+  .trip-route .cities { font-size: 12px; color: var(--ink-soft); }
+  .trip-meta { display: flex; align-items: center; gap: 14px; margin-left: auto; flex-wrap: wrap; }
+  .meta-item { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+  .meta-item .v { font-weight: 700; font-size: 13px; }
+  .meta-item .k { font-size: 10.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .06em; }
+
+  .trip-body { padding: 4px 0; }
+  .group-block { padding: 12px 18px; }
+  .group-block + .group-block { border-top: 1px solid var(--line); }
+
+  .driver-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 6px 10px; margin-bottom: 8px;
+    background: var(--accent-soft); border: 1px solid var(--accent-soft-line);
+    border-radius: 7px;
+  }
+  .driver-bar .name { font-weight: 700; font-size: 12.5px; color: var(--accent); }
+  .driver-bar .plate { font-size: 11.5px; color: var(--ink-soft); background: var(--paper-raised); border: 1px solid var(--line-strong); padding: 2px 7px; border-radius: 5px; }
+  .driver-bar .group-label { font-size: 11px; font-weight: 700; color: var(--ink-soft); margin-left: auto; }
+  .driver-bar a.phone-pill { flex-shrink: 0; }
+
+  .group-block.no-driver .driver-bar { background: var(--amber-soft); border-color: var(--amber-soft-line); }
+  .group-block.no-driver .driver-bar .name { color: var(--amber); }
+
+  .group-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .stat-tag {
+    font-size: 11.5px; font-weight: 600; color: var(--ink-soft);
+    background: var(--paper); border: 1px solid var(--line); border-radius: 999px;
+    padding: 3px 10px;
+  }
+  .stat-tag b { color: var(--ink); font-weight: 700; }
+
+  .addr-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; }
+  .addr-list li {
+    font-size: 12.5px; color: var(--ink-soft); padding-left: 14px; position: relative;
+  }
+  .addr-list li::before { content: "•"; position: absolute; left: 2px; color: var(--line-strong); }
+
+  .phone-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 700; text-decoration: none;
+    color: var(--ink); background: var(--paper); border: 1px solid var(--line-strong);
+    padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  }
+  .phone-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .phone-pill svg { flex-shrink: 0; }
+
+  .saved-at { font-size: 10.5px; color: var(--ink-soft); margin-top: 8px; opacity: .8; }
+
+  .updated-foot { margin-top: 22px; font-size: 11.5px; color: var(--ink-soft); text-align: center; }
+
+  @media (max-width: 620px) {
+    .trip-meta { margin-left: 0; width: 100%; justify-content: space-between; }
+  }
+</style>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand-row">
+      <div class="brand">
+        <div class="mark">HK</div>
+        <div class="brand-text">
+          <h1>Bảng điều phối trung chuyển</h1>
+          <div class="sub">HK Buslines · xe & tài xế trung chuyển theo từng chuyến</div>
+        </div>
+      </div>
+      <div class="source-row">
+        <label class="drop" id="dropZone">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="dropLabel">Tải file CSV</span>
+          <input type="file" id="fileInput" accept=".csv,text/csv" />
+        </label>
+        <div class="preset-group" id="presetGroup"></div>
+        <div class="url-field">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <input type="text" id="urlInput" placeholder="Hoặc dán link CSV đã Publish to web…" />
+        </div>
+        <button class="btn btn-accent" id="btnLoadUrl">Tải</button>
+        <button class="btn btn-ghost" id="btnRefresh" title="Tải lại từ nguồn gần nhất" hidden>↻ Làm mới</button>
+        <label class="auto-toggle" id="autoRefreshWrap" hidden>
+          <input type="checkbox" id="autoRefreshToggle" checked />
+          <span class="live-dot" id="liveDot"></span>
+          <span id="autoRefreshLabel">Tự động cập nhật</span>
+        </label>
+      </div>
+    </div>
+    <div class="filter-row">
+      <div class="search-field">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Tìm tài xế, biển số, địa chỉ…" />
+      </div>
+      <div class="chip-scroll" id="routeChips"></div>
+      <span class="status-line" id="statusLine"></span>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="summary-strip" id="summaryStrip" hidden></div>
+  <div id="content">
+    <div class="empty" id="emptyState">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>
+      <h2>Chưa có dữ liệu chấm công</h2>
+      <p>Tải file CSV xuất từ tab "Chấm công Hà Nội" / "Chấm công Sa Pa" trong Google Sheet (cột <code>Ngày, Giờ đón, Nhóm, Xe (BKS), Tài xế, SĐT, Số điểm đón, Tổng số khách, Địa chỉ, Lúc lưu, Tuyến / Giờ</code>), hoặc dán link CSV đã publish để bảng tự cập nhật mỗi khi mở lại.</p>
+      <p><button class="sample-link" id="btnSample">Xem thử với dữ liệu mẫu</button></p>
+    </div>
+    <div class="trip-list" id="tripList"></div>
+  </div>
+  <div class="updated-foot" id="updatedFoot"></div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- CSV parsing (RFC4180-ish: handles quoted fields with commas/newlines) ----------
+  function parseCSV(text) {
+    const rows = [];
+    let row = [], field = "", inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { field += '"'; i++; } else { inQuotes = false; }
+        } else field += c;
+      } else if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ""; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(field); rows.push(row); row = []; field = "";
+      } else field += c;
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows.filter(r => r.some(v => v.trim() !== ""));
+  }
+
+  // ---------- Flexible header matching — matches the "Chấm công {office}" tab schema
+  // written by google_apps_script_cham_cong_trung_chuyen.txt (group-level, no passenger
+  // names/phones — only xe/tài xế/địa chỉ gộp/tuyến+giờ ở mức nhóm). ----------
+  const ALIASES = {
+    date:        ["ngày", "ngay", "date"],
+    pickupTime:  ["giờ đón", "gio don"],
+    groupLabel:  ["nhóm", "nhom"],
+    bks:         ["xe (bks)", "xe bks", "bks"],
+    driverName:  ["tài xế", "tai xe", "driver"],
+    phone:       ["sđt", "sdt", "phone"],
+    pointCount:  ["số điểm đón", "so diem don"],
+    paxCount:    ["tổng số khách", "tong so khach"],
+    addresses:   ["địa chỉ", "dia chi", "address"],
+    savedAt:     ["lúc lưu", "luc luu"],
+    routes:      ["tuyến / giờ", "tuyen / gio", "tuyến/giờ", "tuyen/gio", "tuyến", "tuyen"],
+  };
+  function normHeader(h) {
+    return h.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").trim();
+  }
+  function mapHeaders(headerRow) {
+    const norm = headerRow.map(normHeader);
+    const map = {};
+    for (const key in ALIASES) {
+      let idx = -1;
+      for (const alias of ALIASES[key]) {
+        const na = normHeader(alias);
+        idx = norm.findIndex(h => h === na || h.includes(na));
+        if (idx !== -1) break;
+      }
+      map[key] = idx;
+    }
+    return map;
+  }
+
+  function rowsToRecords(rows) {
+    if (rows.length < 2) return [];
+    const map = mapHeaders(rows[0]);
+    const get = (r, key) => (map[key] >= 0 ? (r[map[key]] || "").trim() : "");
+    return rows.slice(1).map(r => ({
+      date: get(r, "date"), pickupTime: get(r, "pickupTime"), groupLabel: get(r, "groupLabel"),
+      bks: get(r, "bks"), driverName: get(r, "driverName"), phone: get(r, "phone"),
+      pointCount: get(r, "pointCount"), paxCount: get(r, "paxCount"), addresses: get(r, "addresses"),
+      savedAt: get(r, "savedAt"), routes: get(r, "routes"),
+    })).filter(rec => rec.date || rec.groupLabel);
+  }
+
+  // A "Lưu chấm công lên Sheet" click appends one row per group — clicking it more than
+  // once for the same day (e.g. after re-clustering) appends again rather than overwriting
+  // (the script is append-only by design). Keep only the freshest row per (ngày, nhóm, xe)
+  // so the dashboard reflects current state, not every historical save.
+  function dedupeRecords(records) {
+    const map = new Map();
+    for (const r of records) {
+      const key = `${r.date}|${r.groupLabel}|${r.bks}`;
+      const prev = map.get(key);
+      if (!prev || (r.savedAt || "") >= (prev.savedAt || "")) map.set(key, r);
+    }
+    return [...map.values()];
+  }
+
+  const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const telHref = p => "tel:" + String(p || "").replace(/[^\d+]/g, "");
+
+  function phonePill(phone) {
+    if (!phone) return "";
+    return `<a class="phone-pill" href="${telHref(phone)}">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      ${esc(phone)}
+    </a>`;
+  }
+
+  // ---------- Render ----------
+  let allRecords = []; // deduped group rows
+  let activeRoute = null; // "" reserved for "chưa gán tuyến" bucket, null = all
+  let searchTerm = "";
+
+  const el = id => document.getElementById(id);
+
+  function routeLabel(code) {
+    const parts = String(code || "").split("-");
+    return parts.length === 2 ? parts.join(" → ") : "";
+  }
+
+  // One group's "Tuyến / Giờ" cell can list several trips it serves, e.g.
+  // "HN-SP 07:30; HN-HL 08:00" — split into individual {routeCode, time} entries so the
+  // group shows up under every trip it actually picks up for.
+  function explodeRoutes(rec) {
+    const raw = (rec.routes || "").split(";").map(s => s.trim()).filter(Boolean);
+    if (!raw.length) return [{ routeCode: "", time: "" }];
+    return raw.map(tok => {
+      const m = tok.match(/^(.*?)\s+(\d{1,2}:\d{2})$/);
+      return m ? { routeCode: m[1].trim(), time: m[2] } : { routeCode: tok, time: "" };
+    });
+  }
+
+  function buildTripCards(records) {
+    const byTrip = new Map();
+    for (const rec of records) {
+      for (const { routeCode, time } of explodeRoutes(rec)) {
+        const key = `${rec.date}|${routeCode}|${time}`;
+        if (!byTrip.has(key)) byTrip.set(key, { date: rec.date, routeCode, time, groups: [] });
+        byTrip.get(key).groups.push(rec);
+      }
+    }
+    return [...byTrip.values()].sort((a, b) => (a.date + (a.time || "99:99")).localeCompare(b.date + (b.time || "99:99")));
+  }
+
+  function renderTripCard(trip) {
+    const totalPax = trip.groups.reduce((s, g) => s + (parseInt(g.paxCount, 10) || 0), 0);
+    const isUnrouted = !trip.routeCode;
+
+    const groupsHtml = trip.groups.map(g => {
+      const hasVehicle = g.bks || g.driverName;
+      const addrList = (g.addresses || "").split(";").map(s => s.trim()).filter(Boolean);
+      return `<div class="group-block ${hasVehicle ? "" : "no-driver"}">
+        <div class="driver-bar">
+          <span class="name">${g.driverName ? esc(g.driverName) : "Chưa gán tài xế"}</span>
+          ${g.bks ? `<span class="plate num">${esc(g.bks)}</span>` : ""}
+          ${phonePill(g.phone)}
+          <span class="group-label">${esc(g.groupLabel || "")}</span>
+        </div>
+        <div class="group-meta">
+          ${g.pickupTime ? `<span class="stat-tag">Giờ đón <b class="num">${esc(g.pickupTime)}</b></span>` : ""}
+          <span class="stat-tag"><b class="num">${esc(g.pointCount) || 0}</b> điểm đón</span>
+          <span class="stat-tag"><b class="num">${esc(g.paxCount) || 0}</b> khách</span>
+        </div>
+        ${addrList.length ? `<ul class="addr-list">${addrList.map(a => `<li>${esc(a)}</li>`).join("")}</ul>` : ""}
+        ${g.savedAt ? `<div class="saved-at">Lưu lúc ${esc(g.savedAt)}</div>` : ""}
+      </div>`;
+    }).join("");
+
+    return `<div class="trip-card ${isUnrouted ? "unrouted" : ""}" data-route="${esc(trip.routeCode)}">
+      <div class="trip-head">
+        <div class="trip-time num">${esc(trip.time) || "—"}</div>
+        <div class="trip-route">
+          <span class="code">${isUnrouted ? "Chưa gán tuyến" : esc(trip.routeCode)}</span>
+          <span class="cities">${isUnrouted ? esc(trip.date) : `${routeLabel(trip.routeCode)} · ${esc(trip.date)}`}</span>
+        </div>
+        <div class="trip-meta">
+          <div class="meta-item"><span class="v">${trip.groups.length}</span><span class="k">Nhóm / xe</span></div>
+          <div class="meta-item"><span class="v">${totalPax}</span><span class="k">Khách</span></div>
+        </div>
+      </div>
+      <div class="trip-body">${groupsHtml}</div>
+    </div>`;
+  }
+
+  function applyFilters(records) {
+    let out = records;
+    if (activeRoute !== null) {
+      out = out.filter(r => explodeRoutes(r).some(e => e.routeCode === activeRoute));
+    }
+    if (searchTerm) {
+      const q = searchTerm.toLowerCase();
+      out = out.filter(r =>
+        (r.driverName || "").toLowerCase().includes(q) ||
+        (r.bks || "").toLowerCase().includes(q) ||
+        (r.phone || "").includes(q) ||
+        (r.addresses || "").toLowerCase().includes(q)
+      );
+    }
+    return out;
+  }
+
+  function render() {
+    const filtered = applyFilters(allRecords);
+    const trips = buildTripCards(filtered);
+    const tripList = el("tripList");
+    const emptyState = el("emptyState");
+
+    if (!allRecords.length) {
+      emptyState.hidden = false;
+      tripList.innerHTML = "";
+      el("summaryStrip").hidden = true;
+      return;
+    }
+    emptyState.hidden = true;
+
+    tripList.innerHTML = trips.length
+      ? trips.map(renderTripCard).join("")
+      : `<div class="empty"><h2>Không tìm thấy kết quả</h2><p>Thử từ khoá khác hoặc bỏ bớt bộ lọc tuyến.</p></div>`;
+
+    const totalPax = allRecords.reduce((s, r) => s + (parseInt(r.paxCount, 10) || 0), 0);
+    const noVehicle = allRecords.filter(r => !r.bks && !r.driverName).length;
+    const strip = el("summaryStrip");
+    strip.hidden = false;
+    strip.innerHTML = [
+      [trips.length, "Chuyến"],
+      [allRecords.length, "Nhóm / xe"],
+      [totalPax, "Tổng khách"],
+      [noVehicle, "Chưa gán xe"],
+    ].map(([n, lbl]) => `<div class="summary-cell"><div class="n num">${n}</div><div class="lbl">${lbl}</div></div>`).join("");
+  }
+
+  function rebuildRouteChips() {
+    const codes = new Set();
+    let hasUnrouted = false;
+    for (const r of allRecords) {
+      for (const { routeCode } of explodeRoutes(r)) {
+        if (routeCode) codes.add(routeCode); else hasUnrouted = true;
+      }
+    }
+    const routes = [...codes].sort();
+    const box = el("routeChips");
+    if (!routes.length && !hasUnrouted) { box.innerHTML = ""; return; }
+    let html = `<button class="chip" data-route="__all__" aria-pressed="${activeRoute === null}">Tất cả tuyến</button>`;
+    html += routes.map(r => `<button class="chip" data-route="${esc(r)}" aria-pressed="${activeRoute === r}">${esc(r)}</button>`).join("");
+    if (hasUnrouted) html += `<button class="chip" data-route="" aria-pressed="${activeRoute === ""}">Chưa gán tuyến</button>`;
+    box.innerHTML = html;
+    box.querySelectorAll(".chip").forEach(btn => btn.addEventListener("click", () => {
+      activeRoute = btn.dataset.route === "__all__" ? null : btn.dataset.route;
+      rebuildRouteChips();
+      render();
+    }));
+  }
+
+  function loadRecords(rawRecords, sourceLabel) {
+    allRecords = dedupeRecords(rawRecords);
+    activeRoute = null;
+    rebuildRouteChips();
+    render();
+    el("updatedFoot").textContent = `Cập nhật lúc ${new Date().toLocaleString("vi-VN")}${sourceLabel ? " · " + sourceLabel : ""}`;
+  }
+
+  function setStatus(msg, kind) {
+    const s = el("statusLine");
+    s.textContent = msg || "";
+    s.className = "status-line" + (kind ? " " + kind : "");
+  }
+
+  // `background` = true for auto-refresh polls: on parse/network failure, keep whatever
+  // is already on screen instead of blanking the dashboard out from under whoever's
+  // looking at it — just leave a quiet error note in the status line.
+  function loadFromText(text, sourceLabel, background) {
+    try {
+      const records = rowsToRecords(parseCSV(text));
+      if (!records.length) {
+        setStatus(background ? "Lần tự động cập nhật gần nhất không có dữ liệu — vẫn giữ bảng cũ." : "Không đọc được dòng dữ liệu nào từ CSV này.", "err");
+        return;
+      }
+      loadRecords(records, sourceLabel);
+      setStatus(`Đã tải ${records.length} dòng (${allRecords.length} nhóm sau khi gộp trùng).`, "ok");
+      el("btnRefresh").hidden = false;
+    } catch (e) {
+      setStatus((background ? "Tự động cập nhật lỗi (vẫn giữ bảng cũ): " : "Lỗi đọc CSV: ") + e.message, "err");
+    }
+  }
+
+  let lastUrl = null;
+  let autoTimer = null;
+  let autoInFlight = false;
+  const AUTO_REFRESH_MS = 30000;
+
+  function loadFromUrl(url, background) {
+    if (!url || autoInFlight) return;
+    lastUrl = url;
+    autoInFlight = true;
+    if (!background) setStatus("Đang tải…");
+    fetch(url, { cache: "no-store" }).then(r => {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.text();
+    }).then(text => loadFromText(text, "từ URL", background))
+      .catch(e => setStatus((background ? "Tự động cập nhật lỗi (vẫn giữ bảng cũ): " : "Không tải được URL: ") + e.message, "err"))
+      .finally(() => { autoInFlight = false; });
+  }
+
+  function updateLiveDot() {
+    el("liveDot").classList.toggle("live", !!(autoTimer && lastUrl));
+  }
+
+  function stopAutoRefresh() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    updateLiveDot();
+  }
+
+  function startAutoRefresh() {
+    stopAutoRefresh();
+    if (!lastUrl || !el("autoRefreshToggle").checked) { updateLiveDot(); return; }
+    autoTimer = setInterval(() => { if (!document.hidden) loadFromUrl(lastUrl, true); }, AUTO_REFRESH_MS);
+    updateLiveDot();
+  }
+
+  // ---------- Wiring ----------
+  el("fileInput").addEventListener("change", e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    el("dropLabel").textContent = f.name;
+    lastUrl = null; stopAutoRefresh();
+    el("autoRefreshWrap").hidden = true;
+    const reader = new FileReader();
+    reader.onload = () => loadFromText(reader.result, f.name);
+    reader.readAsText(f, "utf-8");
+  });
+  const dz = el("dropZone");
+  ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("dragover"); }));
+  ["dragleave", "drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("dragover"); }));
+  dz.addEventListener("drop", e => {
+    const f = e.dataTransfer.files[0];
+    if (!f) return;
+    el("dropLabel").textContent = f.name;
+    lastUrl = null; stopAutoRefresh();
+    el("autoRefreshWrap").hidden = true;
+    const reader = new FileReader();
+    reader.onload = () => loadFromText(reader.result, f.name);
+    reader.readAsText(f, "utf-8");
+  });
+
+  // Hardcoded shortcuts to the 2 published "Chấm công {office}" CSV endpoints — so the
+  // booking team doesn't have to know or paste any URL, just pick their region once.
+  const PRESET_SOURCES = [
+    { label: "Hà Nội", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWPdOH0zyaDui2ojqiKglSFh11SFmjXB7bgLuq_iBFgIVfCYo_E623t5gCOWvRI8XJZkptUXfC4kdM/pub?gid=1506329944&single=true&output=csv" },
+    { label: "Sa Pa", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWPdOH0zyaDui2ojqiKglSFh11SFmjXB7bgLuq_iBFgIVfCYo_E623t5gCOWvRI8XJZkptUXfC4kdM/pub?gid=15850666&single=true&output=csv" },
+  ];
+  let activePreset = null;
+  function renderPresets() {
+    const box = el("presetGroup");
+    box.innerHTML = PRESET_SOURCES.map(p => `<button class="preset-btn" data-label="${esc(p.label)}" aria-pressed="${activePreset === p.label}">${esc(p.label)}</button>`).join("");
+    box.querySelectorAll(".preset-btn").forEach(btn => btn.addEventListener("click", () => {
+      const preset = PRESET_SOURCES.find(p => p.label === btn.dataset.label);
+      activePreset = preset.label;
+      renderPresets();
+      el("urlInput").value = preset.url;
+      loadFromUrl(preset.url);
+      el("autoRefreshWrap").hidden = false;
+      startAutoRefresh();
+    }));
+  }
+  renderPresets();
+
+  el("btnLoadUrl").addEventListener("click", () => {
+    activePreset = null; renderPresets();
+    loadFromUrl(el("urlInput").value.trim());
+    el("autoRefreshWrap").hidden = false;
+    startAutoRefresh();
+  });
+  el("urlInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      activePreset = null; renderPresets();
+      loadFromUrl(el("urlInput").value.trim()); el("autoRefreshWrap").hidden = false; startAutoRefresh();
+    }
+  });
+  el("btnRefresh").addEventListener("click", () => { if (lastUrl) loadFromUrl(lastUrl); });
+  el("autoRefreshToggle").addEventListener("change", () => { if (el("autoRefreshToggle").checked) startAutoRefresh(); else stopAutoRefresh(); });
+  // Coming back to the tab after it was backgrounded: catch up immediately instead of
+  // waiting out the rest of the interval, since the last poll(s) were skipped while hidden.
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && lastUrl && autoTimer) loadFromUrl(lastUrl, true); });
+
+  el("searchInput").addEventListener("input", e => { searchTerm = e.target.value.trim(); render(); });
+
+  el("btnSample").addEventListener("click", () => {
+    const sampleCsv = [
+      "Ngày,Giờ đón,Nhóm,Xe (BKS),Tài xế,SĐT,Số điểm đón,Tổng số khách,Địa chỉ,Lúc lưu,Tuyến / Giờ",
+      "2026-07-15,07:15,Nhóm 1,29E-330.47,Phạm Văn Tăng,0869.429.622,3,5,\"La Passion Hanoi Hotel & Spa, 26 P. Hàng Thùng; 39 Gia Ngư - Le Foyer hotel; 70 Nguyễn Hữu Huân\",2026-07-15 06:02:11,HN-SP 07:30",
+      "2026-07-15,07:20,Nhóm 2,29K-016.76,Nguyễn Hữu Cường,0337.292.622,1,2,\"La Sinfonía del Rey Hotel & Spa, 35 Phố Hàng Dầu\",2026-07-15 06:02:11,HN-SP 07:30; HN-HL 08:00",
+      "2026-07-15,,Nhóm 3,,,,1,1,\"Sapa May Ecolodge - 36 Hoàng Liên\",2026-07-15 06:02:11,",
+      "2026-07-15,06:40,Nhóm 1,29E-583.41,Nguyễn Hữu Chinh,0866.444.622,2,3,\"The Sun Hotel Ninh Bình; Marina Hotel, 67 Nguyen Huu Huan\",2026-07-15 05:58:40,SP-HN 07:00",
+    ].join("\n");
+    loadFromText(sampleCsv, "dữ liệu mẫu");
+    el("dropLabel").textContent = "Tải file CSV";
+  });
+
+  render();
+})();
+</script>
