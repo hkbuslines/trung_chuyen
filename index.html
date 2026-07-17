@@ -267,11 +267,13 @@
   }
   .stat-tag b { color: var(--ink); font-weight: 700; }
 
-  .addr-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; }
+  .addr-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
   .addr-list li {
     font-size: 12.5px; color: var(--ink-soft); padding-left: 14px; position: relative;
   }
   .addr-list li::before { content: "•"; position: absolute; left: 2px; color: var(--line-strong); }
+  .addr-list .addr-text { line-height: 1.4; }
+  .addr-tickets { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
 
   .phone-pill {
     display: inline-flex; align-items: center; gap: 5px;
@@ -287,6 +289,10 @@
   .seat-chip {
     font-size: 11px; font-weight: 700; color: var(--blue); background: var(--blue-soft);
     border: 1px solid var(--blue-soft-line); border-radius: 5px; padding: 1px 7px;
+  }
+  .ticket-chip {
+    font-size: 11px; font-weight: 700; color: var(--amber); background: var(--amber-soft);
+    border: 1px solid var(--amber-soft-line); border-radius: 5px; padding: 1px 7px;
   }
 
   .shared-note {
@@ -517,7 +523,18 @@
 
     const groupsHtml = trip.groups.map(g => {
       const hasVehicle = g.bks || g.driverName;
-      const addrList = (g.addresses || "").split(";").map(s => s.trim()).filter(Boolean);
+      const addrParts = (g.addresses || "").split(";").map(s => s.trim()).filter(Boolean);
+      // Newer saves write `seats`/`ticketCodes` as ONE SEGMENT PER PICKUP POINT (same order
+      // as `addresses`, split on ";") so each address can show only its own ghế/vé. Older
+      // rows saved before this existed have a single flat comma-list with no ";" — segment
+      // count won't match addrParts.length, so fall back to one undifferentiated block below
+      // the list instead of mispairing ghế/vé to the wrong address.
+      const seatSegs = (g.seats || "").split(";").map(s => s.trim());
+      const ticketSegs = (g.ticketCodes || "").split(";").map(s => s.trim());
+      const perPointAligned = seatSegs.length === addrParts.length && ticketSegs.length === addrParts.length;
+      // A booking/vé can cover several seats — same mã vé repeats once per ghế in the raw
+      // data (e.g. "2UU83V" x9). Dedupe so each mã vé only shows once in the chip list.
+      const chipList = (s, cls) => [...new Set(s.split(",").map(v => v.trim()).filter(Boolean))].map(v => `<span class="${cls} num">${esc(v)}</span>`).join("");
       // One shuttle run can feed passengers onward to more than one departure — if so,
       // this exact group (same driver/xe/khách/địa chỉ) also appears under those other
       // trip cards. Flag it explicitly so that isn't mistaken for duplicated/wrong data.
@@ -534,9 +551,13 @@
           <span class="stat-tag"><b class="num">${esc(g.pointCount) || 0}</b> điểm đón</span>
           <span class="stat-tag"><b class="num">${esc(g.paxCount) || 0}</b> khách</span>
         </div>
-        ${addrList.length ? `<ul class="addr-list">${addrList.map(a => `<li>${esc(a)}</li>`).join("")}</ul>` : ""}
-        ${g.seats ? `<div class="ticket-line"><span class="ticket-line-k">Số ghế</span> ${g.seats.split(",").map(s => s.trim()).filter(Boolean).map(s => `<span class="seat-chip num">${esc(s)}</span>`).join("")}</div>` : ""}
-        ${g.ticketCodes ? `<div class="ticket-line"><span class="ticket-line-k">Mã vé</span> ${g.ticketCodes.split(",").map(s => s.trim()).filter(Boolean).map(s => `<span class="seat-chip num">${esc(s)}</span>`).join("")}</div>` : ""}
+        ${addrParts.length ? `<ul class="addr-list">${addrParts.map((a, i) => {
+          const seatsHtml = perPointAligned ? chipList(seatSegs[i] || "", "seat-chip") : "";
+          const ticketsHtml = perPointAligned ? chipList(ticketSegs[i] || "", "ticket-chip") : "";
+          return `<li><div class="addr-text">${esc(a)}</div>${seatsHtml || ticketsHtml ? `<div class="addr-tickets">${seatsHtml}${ticketsHtml}</div>` : ""}</li>`;
+        }).join("")}</ul>` : ""}
+        ${!perPointAligned && g.seats ? `<div class="ticket-line"><span class="ticket-line-k">Số ghế</span> ${chipList(g.seats, "seat-chip")}</div>` : ""}
+        ${!perPointAligned && g.ticketCodes ? `<div class="ticket-line"><span class="ticket-line-k">Mã vé</span> ${chipList(g.ticketCodes, "ticket-chip")}</div>` : ""}
         ${otherTrips.length ? `<div class="shared-note">Xe này gộp đón cho cả chuyến khác: ${otherTrips.map(e => `<b>${esc(e.routeCode)}${e.time ? " · " + esc(e.time) : ""}</b>`).join(", ")} — số khách/địa chỉ trên là tổng gộp, không riêng cho từng chuyến.</div>` : ""}
         ${g.savedAt ? `<div class="saved-at">Lưu lúc ${esc(g.savedAt)}</div>` : ""}
       </div>`;
