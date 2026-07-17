@@ -113,6 +113,32 @@
   .source-row {
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
+  .drop {
+    border: 1.5px dashed var(--line-strong);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    background: var(--paper-raised);
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .drop:hover, .drop.dragover { border-color: var(--accent); color: var(--accent); }
+  .drop input { display: none; }
+  .drop svg { flex-shrink: 0; }
+
+  .url-field {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--paper-raised); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 6px 6px 6px 12px;
+    flex: 1; min-width: 220px;
+  }
+  .url-field input {
+    border: none; outline: none; background: transparent; color: var(--ink);
+    font-size: 12.5px; flex: 1; min-width: 0;
+  }
+  .url-field input::placeholder { color: var(--ink-soft); }
   .btn {
     border: 1px solid var(--line-strong); background: var(--paper-raised); color: var(--ink);
     border-radius: 7px; padding: 6px 12px; font-size: 12.5px; font-weight: 600;
@@ -120,22 +146,13 @@
     transition: background .15s ease, border-color .15s ease;
   }
   .btn:hover { border-color: var(--accent); }
-  .btn:focus-visible, input:focus-visible, select:focus-visible {
+  .btn:focus-visible, .drop:focus-visible, input:focus-visible, select:focus-visible {
     outline: 2px solid var(--accent); outline-offset: 2px;
   }
+  .btn-accent { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn-accent:hover { opacity: .92; }
   .btn-ghost { background: transparent; border-color: transparent; color: var(--ink-soft); }
   .btn-ghost:hover { color: var(--ink); }
-  .auto-toggle {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
-    cursor: pointer; white-space: nowrap; padding: 6px 4px;
-  }
-  .auto-toggle[hidden] { display: none; }
-  .auto-toggle input { accent-color: var(--accent); cursor: pointer; }
-  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); flex-shrink: 0; }
-  .live-dot.live { background: var(--accent); animation: livepulse 1.8s ease-in-out infinite; }
-  @keyframes livepulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-  @media (prefers-reduced-motion: reduce) { .live-dot.live { animation: none; } }
   .status-line { font-size: 11.5px; color: var(--ink-soft); }
   .status-line.err { color: var(--red); }
   .status-line.ok { color: var(--accent); }
@@ -158,12 +175,6 @@
   }
   .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent-soft-line); color: var(--accent); }
 
-  .office-badge {
-    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-    padding: 2px 7px; border-radius: 999px; white-space: nowrap;
-    background: var(--blue-soft); color: var(--blue); border: 1px solid var(--blue-soft-line);
-  }
-
   /* ── Main ── */
   main { max-width: 1180px; margin: 0 auto; padding: 22px 20px 64px; }
 
@@ -183,40 +194,10 @@
   }
   .empty h2 { color: var(--ink); font-size: 17px; margin: 14px 0 6px; text-wrap: balance; }
   .empty p { font-size: 13.5px; max-width: 460px; margin: 0 auto 4px; }
+  .empty code { font-family: ui-monospace, monospace; font-size: 12px; background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+  .empty .sample-link { color: var(--accent); font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; background: none; border: none; padding: 0; font-size: 13.5px; }
 
-  /* ── Picker (left rail: pick a trip) + Detail (right: that trip's groups) ── */
-  .picker-layout { display: grid; grid-template-columns: 300px 1fr; gap: 18px; align-items: start; }
-  @media (max-width: 780px) { .picker-layout { grid-template-columns: 1fr; } }
-
-  .trip-picker {
-    display: flex; flex-direction: column; gap: 4px;
-    background: var(--paper-raised); border: 1px solid var(--line); border-radius: 12px;
-    padding: 8px; box-shadow: var(--shadow);
-    max-height: 74vh; overflow-y: auto;
-  }
-  @media (max-width: 780px) { .trip-picker { max-height: 46vh; } }
-
-  .trip-row {
-    display: flex; align-items: center; gap: 10px; width: 100%;
-    padding: 9px 10px; border-radius: 8px; border: 1px solid transparent;
-    background: transparent; cursor: pointer; text-align: left; font: inherit; color: var(--ink);
-  }
-  .trip-row:hover { background: var(--paper); }
-  .trip-row[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent-soft-line); }
-  .trip-row.unrouted[aria-pressed="true"] { background: var(--amber-soft); border-color: var(--amber-soft-line); }
-  .trip-row-time { font-weight: 800; font-size: 15px; min-width: 44px; flex-shrink: 0; }
-  .trip-row-main { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
-  .trip-row-main .code { font-weight: 700; font-size: 12.5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .trip-row-main .date { font-size: 10.5px; color: var(--ink-soft); }
-  .trip-row-stats { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; flex-shrink: 0; }
-  .trip-row-stats .n { font-weight: 700; font-size: 12.5px; }
-  .trip-row-stats .k { font-size: 9px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .04em; }
-
-  .detail-placeholder {
-    border: 1px dashed var(--line-strong); border-radius: 14px;
-    padding: 48px 24px; text-align: center; color: var(--ink-soft);
-  }
-  .detail-placeholder p { font-size: 13.5px; max-width: 320px; margin: 10px auto 0; }
+  .trip-list { display: flex; flex-direction: column; gap: 14px; }
 
   .trip-card {
     background: var(--paper-raised);
@@ -282,11 +263,6 @@
   .phone-pill:hover { border-color: var(--accent); color: var(--accent); }
   .phone-pill svg { flex-shrink: 0; }
 
-  .shared-note {
-    font-size: 11.5px; color: var(--blue); background: var(--blue-soft); border: 1px solid var(--blue-soft-line);
-    border-radius: 7px; padding: 6px 10px; margin-top: 8px; line-height: 1.4;
-  }
-  .shared-note b { font-weight: 700; }
   .saved-at { font-size: 10.5px; color: var(--ink-soft); margin-top: 8px; opacity: .8; }
 
   .updated-foot { margin-top: 22px; font-size: 11.5px; color: var(--ink-soft); text-align: center; }
@@ -307,12 +283,17 @@
         </div>
       </div>
       <div class="source-row">
-        <button class="btn btn-ghost" id="btnRefresh" title="Tải lại dữ liệu Hà Nội & Sa Pa">↻ Làm mới</button>
-        <label class="auto-toggle" id="autoRefreshWrap" hidden>
-          <input type="checkbox" id="autoRefreshToggle" checked />
-          <span class="live-dot" id="liveDot"></span>
-          <span id="autoRefreshLabel">Tự động cập nhật</span>
+        <label class="drop" id="dropZone">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="dropLabel">Tải file CSV</span>
+          <input type="file" id="fileInput" accept=".csv,text/csv" />
         </label>
+        <div class="url-field">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <input type="text" id="urlInput" placeholder="Hoặc dán link CSV đã Publish to web…" />
+        </div>
+        <button class="btn btn-accent" id="btnLoadUrl">Tải</button>
+        <button class="btn btn-ghost" id="btnRefresh" title="Tải lại từ nguồn gần nhất" hidden>↻ Làm mới</button>
       </div>
     </div>
     <div class="filter-row">
@@ -320,7 +301,6 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="searchInput" placeholder="Tìm tài xế, biển số, địa chỉ…" />
       </div>
-      <div class="chip-scroll" id="officeChips"></div>
       <div class="chip-scroll" id="routeChips"></div>
       <span class="status-line" id="statusLine"></span>
     </div>
@@ -333,17 +313,10 @@
     <div class="empty" id="emptyState">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>
       <h2>Chưa có dữ liệu chấm công</h2>
-      <p>Đang tải dữ liệu Hà Nội &amp; Sa Pa… nếu lâu không lên, bấm "↻ Làm mới" ở trên.</p>
+      <p>Tải file CSV xuất từ tab "Chấm công Hà Nội" / "Chấm công Sa Pa" trong Google Sheet (cột <code>Ngày, Giờ đón, Nhóm, Xe (BKS), Tài xế, SĐT, Số điểm đón, Tổng số khách, Địa chỉ, Lúc lưu, Tuyến / Giờ</code>), hoặc dán link CSV đã publish để bảng tự cập nhật mỗi khi mở lại.</p>
+      <p><button class="sample-link" id="btnSample">Xem thử với dữ liệu mẫu</button></p>
     </div>
-    <div class="picker-layout" id="pickerLayout" hidden>
-      <div class="trip-picker" id="tripPicker"></div>
-      <div class="trip-detail" id="tripDetail">
-        <div class="detail-placeholder" id="detailPlaceholder">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M9 18l6-6-6-6"/></svg>
-          <p>Chọn 1 chuyến bên trái (giờ · tuyến) để xem chi tiết xe, tài xế, điểm đón.</p>
-        </div>
-      </div>
-    </div>
+    <div class="trip-list" id="tripList"></div>
   </div>
   <div class="updated-foot" id="updatedFoot"></div>
 </main>
@@ -426,7 +399,7 @@
   function dedupeRecords(records) {
     const map = new Map();
     for (const r of records) {
-      const key = `${r.office}|${r.date}|${r.groupLabel}|${r.bks}`;
+      const key = `${r.date}|${r.groupLabel}|${r.bks}`;
       const prev = map.get(key);
       if (!prev || (r.savedAt || "") >= (prev.savedAt || "")) map.set(key, r);
     }
@@ -445,11 +418,9 @@
   }
 
   // ---------- Render ----------
-  let allRecords = []; // deduped group rows, each tagged with `office`
+  let allRecords = []; // deduped group rows
   let activeRoute = null; // "" reserved for "chưa gán tuyến" bucket, null = all
-  let activeOffice = null; // null = all offices (Hà Nội + Sa Pa combined)
   let searchTerm = "";
-  let selectedTripKey = null; // which trip is drilled into in the picker/detail view
 
   const el = id => document.getElementById(id);
 
@@ -475,30 +446,11 @@
     for (const rec of records) {
       for (const { routeCode, time } of explodeRoutes(rec)) {
         const key = `${rec.date}|${routeCode}|${time}`;
-        if (!byTrip.has(key)) byTrip.set(key, { key, date: rec.date, routeCode, time, office: rec.office, groups: [] });
+        if (!byTrip.has(key)) byTrip.set(key, { date: rec.date, routeCode, time, groups: [] });
         byTrip.get(key).groups.push(rec);
       }
     }
     return [...byTrip.values()].sort((a, b) => (a.date + (a.time || "99:99")).localeCompare(b.date + (b.time || "99:99")));
-  }
-
-  function renderTripPickerRow(trip) {
-    const totalPax = trip.groups.reduce((s, g) => s + (parseInt(g.paxCount, 10) || 0), 0);
-    const isUnrouted = !trip.routeCode;
-    const selected = trip.key === selectedTripKey;
-    return `<button class="trip-row ${isUnrouted ? "unrouted" : ""}" type="button" aria-pressed="${selected}" data-tripkey="${esc(trip.key)}">
-      <span class="trip-row-time num">${esc(trip.time) || "—"}</span>
-      <span class="trip-row-main">
-        <span class="code">${isUnrouted ? "Chưa gán tuyến" : esc(trip.routeCode)}${trip.office ? ` <span class="office-badge">${esc(trip.office)}</span>` : ""}</span>
-        <span class="date">${esc(trip.date)}</span>
-      </span>
-      <span class="trip-row-stats">
-        <span class="n num">${trip.groups.length}</span><span class="k">nhóm</span>
-      </span>
-      <span class="trip-row-stats">
-        <span class="n num">${totalPax}</span><span class="k">khách</span>
-      </span>
-    </button>`;
   }
 
   function renderTripCard(trip) {
@@ -508,10 +460,6 @@
     const groupsHtml = trip.groups.map(g => {
       const hasVehicle = g.bks || g.driverName;
       const addrList = (g.addresses || "").split(";").map(s => s.trim()).filter(Boolean);
-      // One shuttle run can feed passengers onward to more than one departure — if so,
-      // this exact group (same driver/xe/khách/địa chỉ) also appears under those other
-      // trip cards. Flag it explicitly so that isn't mistaken for duplicated/wrong data.
-      const otherTrips = explodeRoutes(g).filter(e => !(e.routeCode === trip.routeCode && e.time === trip.time));
       return `<div class="group-block ${hasVehicle ? "" : "no-driver"}">
         <div class="driver-bar">
           <span class="name">${g.driverName ? esc(g.driverName) : "Chưa gán tài xế"}</span>
@@ -525,7 +473,6 @@
           <span class="stat-tag"><b class="num">${esc(g.paxCount) || 0}</b> khách</span>
         </div>
         ${addrList.length ? `<ul class="addr-list">${addrList.map(a => `<li>${esc(a)}</li>`).join("")}</ul>` : ""}
-        ${otherTrips.length ? `<div class="shared-note">Xe này gộp đón cho cả chuyến khác: ${otherTrips.map(e => `<b>${esc(e.routeCode)}${e.time ? " · " + esc(e.time) : ""}</b>`).join(", ")} — số khách/địa chỉ trên là tổng gộp, không riêng cho từng chuyến.</div>` : ""}
         ${g.savedAt ? `<div class="saved-at">Lưu lúc ${esc(g.savedAt)}</div>` : ""}
       </div>`;
     }).join("");
@@ -534,7 +481,7 @@
       <div class="trip-head">
         <div class="trip-time num">${esc(trip.time) || "—"}</div>
         <div class="trip-route">
-          <span class="code">${isUnrouted ? "Chưa gán tuyến" : esc(trip.routeCode)} ${trip.office ? `<span class="office-badge">${esc(trip.office)}</span>` : ""}</span>
+          <span class="code">${isUnrouted ? "Chưa gán tuyến" : esc(trip.routeCode)}</span>
           <span class="cities">${isUnrouted ? esc(trip.date) : `${routeLabel(trip.routeCode)} · ${esc(trip.date)}`}</span>
         </div>
         <div class="trip-meta">
@@ -548,7 +495,6 @@
 
   function applyFilters(records) {
     let out = records;
-    if (activeOffice !== null) out = out.filter(r => r.office === activeOffice);
     if (activeRoute !== null) {
       out = out.filter(r => explodeRoutes(r).some(e => e.routeCode === activeRoute));
     }
@@ -567,37 +513,20 @@
   function render() {
     const filtered = applyFilters(allRecords);
     const trips = buildTripCards(filtered);
-    const pickerLayout = el("pickerLayout");
+    const tripList = el("tripList");
     const emptyState = el("emptyState");
 
     if (!allRecords.length) {
       emptyState.hidden = false;
-      pickerLayout.hidden = true;
+      tripList.innerHTML = "";
       el("summaryStrip").hidden = true;
       return;
     }
     emptyState.hidden = true;
-    pickerLayout.hidden = false;
 
-    const picker = el("tripPicker");
-    picker.innerHTML = trips.length
-      ? trips.map(renderTripPickerRow).join("")
-      : `<div class="empty" style="padding:28px 16px;"><p style="margin:0;">Không tìm thấy chuyến nào khớp bộ lọc.</p></div>`;
-    picker.querySelectorAll(".trip-row").forEach(btn => btn.addEventListener("click", () => {
-      selectedTripKey = selectedTripKey === btn.dataset.tripkey ? null : btn.dataset.tripkey;
-      render();
-    }));
-
-    // Selected trip might have dropped out of the filtered set (search/filter changed, or
-    // its data disappeared on refresh) — fall back to the placeholder rather than showing
-    // stale detail for a trip no longer in view.
-    const selectedTrip = trips.find(t => t.key === selectedTripKey);
-    el("tripDetail").innerHTML = selectedTrip
-      ? renderTripCard(selectedTrip)
-      : `<div class="detail-placeholder" id="detailPlaceholder">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M9 18l6-6-6-6"/></svg>
-          <p>Chọn 1 chuyến bên trái (giờ · tuyến) để xem chi tiết xe, tài xế, điểm đón.</p>
-        </div>`;
+    tripList.innerHTML = trips.length
+      ? trips.map(renderTripCard).join("")
+      : `<div class="empty"><h2>Không tìm thấy kết quả</h2><p>Thử từ khoá khác hoặc bỏ bớt bộ lọc tuyến.</p></div>`;
 
     const totalPax = allRecords.reduce((s, r) => s + (parseInt(r.paxCount, 10) || 0), 0);
     const noVehicle = allRecords.filter(r => !r.bks && !r.driverName).length;
@@ -609,20 +538,6 @@
       [totalPax, "Tổng khách"],
       [noVehicle, "Chưa gán xe"],
     ].map(([n, lbl]) => `<div class="summary-cell"><div class="n num">${n}</div><div class="lbl">${lbl}</div></div>`).join("");
-  }
-
-  function rebuildOfficeChips() {
-    const offices = [...new Set(allRecords.map(r => r.office).filter(Boolean))].sort();
-    const box = el("officeChips");
-    if (offices.length < 2) { box.innerHTML = ""; return; } // only one office loaded — nothing to filter
-    let html = `<button class="chip" data-office="__all__" aria-pressed="${activeOffice === null}">Tất cả khu vực</button>`;
-    html += offices.map(o => `<button class="chip" data-office="${esc(o)}" aria-pressed="${activeOffice === o}">${esc(o)}</button>`).join("");
-    box.innerHTML = html;
-    box.querySelectorAll(".chip").forEach(btn => btn.addEventListener("click", () => {
-      activeOffice = btn.dataset.office === "__all__" ? null : btn.dataset.office;
-      rebuildOfficeChips();
-      render();
-    }));
   }
 
   function rebuildRouteChips() {
@@ -649,7 +564,7 @@
 
   function loadRecords(rawRecords, sourceLabel) {
     allRecords = dedupeRecords(rawRecords);
-    rebuildOfficeChips();
+    activeRoute = null;
     rebuildRouteChips();
     render();
     el("updatedFoot").textContent = `Cập nhật lúc ${new Date().toLocaleString("vi-VN")}${sourceLabel ? " · " + sourceLabel : ""}`;
@@ -661,84 +576,68 @@
     s.className = "status-line" + (kind ? " " + kind : "");
   }
 
-  // Hardcoded shortcuts to the 2 published "Chấm công {office}" CSV endpoints — this is
-  // deliberately the ONLY data source (no file upload, no manual URL field) so booking
-  // can't point the dashboard at an arbitrary/wrong source. Both load together into one
-  // combined view (tagged per-record with `office`) instead of picking one at a time —
-  // "Tất cả khu vực"/"Hà Nội"/"Sa Pa" chips below just filter what's already loaded.
-  const SOURCES = [
-    { label: "Hà Nội", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWPdOH0zyaDui2ojqiKglSFh11SFmjXB7bgLuq_iBFgIVfCYo_E623t5gCOWvRI8XJZkptUXfC4kdM/pub?gid=1506329944&single=true&output=csv" },
-    { label: "Sa Pa", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbQCxhQENuXOifuaYTkhL3R7fZBYgCKz_YvzCgjr4CBIZe1TDhXtSyQHGMY5Ipp7nea921lUetGeLF/pub?gid=2032547328&single=true&output=csv" },
-  ];
-
-  let autoTimer = null;
-  let autoInFlight = false;
-  const AUTO_REFRESH_MS = 30000;
-
-  // `background` = true for auto-refresh polls: on total failure, keep whatever is already
-  // on screen instead of blanking the dashboard out from under whoever's looking at it —
-  // just leave a quiet error note in the status line. A partial failure (one office loads,
-  // the other doesn't) still shows the office that succeeded, with the failure noted.
-  async function loadAllSources(background) {
-    if (autoInFlight) return;
-    autoInFlight = true;
-    if (!background) setStatus("Đang tải…");
+  function loadFromText(text, sourceLabel) {
     try {
-      const results = await Promise.allSettled(SOURCES.map(src =>
-        fetch(src.url, { cache: "no-store" }).then(r => {
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.text();
-        }).then(text => rowsToRecords(parseCSV(text)).map(rec => ({ ...rec, office: src.label })))
-      ));
-
-      const merged = [];
-      const errors = [];
-      results.forEach((res, i) => {
-        if (res.status === "fulfilled") merged.push(...res.value);
-        else errors.push(`${SOURCES[i].label}: ${res.reason.message || res.reason}`);
-      });
-
-      if (!merged.length) {
-        setStatus((background ? "Tự động cập nhật lỗi (vẫn giữ bảng cũ): " : "Không tải được dữ liệu: ") + (errors.join("; ") || "không có dòng nào"), "err");
-        return;
-      }
-
-      loadRecords(merged, "Hà Nội & Sa Pa");
-      const okMsg = `Đã tải ${merged.length} dòng (${allRecords.length} nhóm sau khi gộp trùng).`;
-      setStatus(errors.length ? `${okMsg} Lỗi: ${errors.join("; ")}` : okMsg, errors.length ? "err" : "ok");
-      el("autoRefreshWrap").hidden = false;
-      if (!autoTimer) startAutoRefresh();
-    } finally {
-      autoInFlight = false;
+      const records = rowsToRecords(parseCSV(text));
+      if (!records.length) { setStatus("Không đọc được dòng dữ liệu nào từ CSV này.", "err"); return; }
+      loadRecords(records, sourceLabel);
+      setStatus(`Đã tải ${records.length} dòng (${allRecords.length} nhóm sau khi gộp trùng).`, "ok");
+      el("btnRefresh").hidden = false;
+    } catch (e) {
+      setStatus("Lỗi đọc CSV: " + e.message, "err");
     }
   }
 
-  function updateLiveDot() {
-    el("liveDot").classList.toggle("live", !!autoTimer);
-  }
-
-  function stopAutoRefresh() {
-    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
-    updateLiveDot();
-  }
-
-  function startAutoRefresh() {
-    stopAutoRefresh();
-    if (!el("autoRefreshToggle").checked) { updateLiveDot(); return; }
-    autoTimer = setInterval(() => { if (!document.hidden) loadAllSources(true); }, AUTO_REFRESH_MS);
-    updateLiveDot();
+  let lastUrl = null;
+  function loadFromUrl(url) {
+    if (!url) return;
+    lastUrl = url;
+    setStatus("Đang tải…");
+    fetch(url).then(r => {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.text();
+    }).then(text => loadFromText(text, "từ URL")).catch(e => setStatus("Không tải được URL: " + e.message, "err"));
   }
 
   // ---------- Wiring ----------
-  el("btnRefresh").addEventListener("click", () => loadAllSources());
-  el("autoRefreshToggle").addEventListener("change", () => { if (el("autoRefreshToggle").checked) startAutoRefresh(); else stopAutoRefresh(); });
-  // Coming back to the tab after it was backgrounded: catch up immediately instead of
-  // waiting out the rest of the interval, since the last poll(s) were skipped while hidden.
-  document.addEventListener("visibilitychange", () => { if (!document.hidden && autoTimer) loadAllSources(true); });
+  el("fileInput").addEventListener("change", e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    el("dropLabel").textContent = f.name;
+    const reader = new FileReader();
+    reader.onload = () => loadFromText(reader.result, f.name);
+    reader.readAsText(f, "utf-8");
+  });
+  const dz = el("dropZone");
+  ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("dragover"); }));
+  ["dragleave", "drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("dragover"); }));
+  dz.addEventListener("drop", e => {
+    const f = e.dataTransfer.files[0];
+    if (!f) return;
+    el("dropLabel").textContent = f.name;
+    const reader = new FileReader();
+    reader.onload = () => loadFromText(reader.result, f.name);
+    reader.readAsText(f, "utf-8");
+  });
+
+  el("btnLoadUrl").addEventListener("click", () => loadFromUrl(el("urlInput").value.trim()));
+  el("urlInput").addEventListener("keydown", e => { if (e.key === "Enter") loadFromUrl(el("urlInput").value.trim()); });
+  el("btnRefresh").addEventListener("click", () => { if (lastUrl) loadFromUrl(lastUrl); });
 
   el("searchInput").addEventListener("input", e => { searchTerm = e.target.value.trim(); render(); });
 
-  loadAllSources(); // auto-load both offices on open — no manual "chọn khu vực" step
+  el("btnSample").addEventListener("click", () => {
+    const sampleCsv = [
+      "Ngày,Giờ đón,Nhóm,Xe (BKS),Tài xế,SĐT,Số điểm đón,Tổng số khách,Địa chỉ,Lúc lưu,Tuyến / Giờ",
+      "2026-07-15,07:15,Nhóm 1,29E-330.47,Phạm Văn Tăng,0869.429.622,3,5,\"La Passion Hanoi Hotel & Spa, 26 P. Hàng Thùng; 39 Gia Ngư - Le Foyer hotel; 70 Nguyễn Hữu Huân\",2026-07-15 06:02:11,HN-SP 07:30",
+      "2026-07-15,07:20,Nhóm 2,29K-016.76,Nguyễn Hữu Cường,0337.292.622,1,2,\"La Sinfonía del Rey Hotel & Spa, 35 Phố Hàng Dầu\",2026-07-15 06:02:11,HN-SP 07:30; HN-HL 08:00",
+      "2026-07-15,,Nhóm 3,,,,1,1,\"Sapa May Ecolodge - 36 Hoàng Liên\",2026-07-15 06:02:11,",
+      "2026-07-15,06:40,Nhóm 1,29E-583.41,Nguyễn Hữu Chinh,0866.444.622,2,3,\"The Sun Hotel Ninh Bình; Marina Hotel, 67 Nguyen Huu Huan\",2026-07-15 05:58:40,SP-HN 07:00",
+    ].join("\n");
+    loadFromText(sampleCsv, "dữ liệu mẫu");
+    el("dropLabel").textContent = "Tải file CSV";
+  });
+
   render();
 })();
 </script>
