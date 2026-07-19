@@ -99,10 +99,8 @@
   .brand-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 12px; }
   .mark {
-    width: 38px; height: 38px; border-radius: 8px;
-    background: var(--accent); color: var(--accent-ink);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 15px; letter-spacing: -.02em;
+    width: 40px; height: 40px;
+    object-fit: contain;
     flex-shrink: 0;
   }
   .brand-text h1 {
@@ -339,7 +337,7 @@
   <div class="topbar-inner">
     <div class="brand-row">
       <div class="brand">
-        <div class="mark">HK</div>
+        <img class="mark" src="hk_logo_icon.png" alt="HK Buslines" />
         <div class="brand-text">
           <h1>Bảng điều phối trung chuyển</h1>
           <div class="sub">HK Buslines · xe & tài xế trung chuyển theo từng chuyến</div>
@@ -363,7 +361,6 @@
         <input type="date" id="dateInput" class="date-input num" />
       </div>
       <button class="chip" id="dateTodayChip" type="button">Hôm nay</button>
-      <button class="chip" id="dateAllChip" type="button">Tất cả các ngày</button>
       <select class="filter-select" id="officeSelect" hidden></select>
       <select class="filter-select" id="routeSelect" hidden></select>
       <span class="status-line" id="statusLine"></span>
@@ -688,7 +685,7 @@
 
     const picker = el("tripPicker");
     const emptyMsg = activeDate !== null && allRecords.some(r => r.date && r.date !== activeDate)
-      ? `Chưa có chuyến nào lưu cho ngày ${esc(dateChipLabel(activeDate))}. Bấm "Tất cả các ngày" ở trên để xem dữ liệu ngày khác.`
+      ? `Chưa có chuyến nào lưu cho ngày ${esc(dateChipLabel(activeDate))}. Chọn ngày khác ở ô lịch để xem dữ liệu.`
       : "Không tìm thấy chuyến nào khớp bộ lọc.";
     picker.innerHTML = trips.length
       ? trips.map(renderTripPickerRow).join("")
@@ -734,7 +731,6 @@
     const input = el("dateInput");
     if (activeDate !== null) input.value = activeDate;
     el("dateTodayChip").setAttribute("aria-pressed", String(activeDate === todayStr()));
-    el("dateAllChip").setAttribute("aria-pressed", String(activeDate === null));
   }
 
   function rebuildOfficeChips() {
@@ -877,7 +873,6 @@
     render();
   });
   el("dateTodayChip").addEventListener("click", () => { activeDate = todayStr(); syncDateControls(); render(); });
-  el("dateAllChip").addEventListener("click", () => { activeDate = null; syncDateControls(); render(); });
 
   syncDateControls(); // seed the <input type="date"> with today before any data has loaded
   loadAllSources(); // auto-load both offices on open — no manual "chọn khu vực" step
