@@ -159,6 +159,30 @@
   }
   .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent-soft-line); color: var(--accent); }
 
+  .filter-select {
+    flex-shrink: 0; max-width: 160px;
+    border: 1px solid var(--line-strong); background: var(--paper-raised); color: var(--ink);
+    border-radius: 999px; padding: 5px 26px 5px 12px; font-size: 12.5px; font-weight: 700;
+    cursor: pointer; font-family: inherit; letter-spacing: .01em;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center; background-size: 14px;
+  }
+  .filter-select[hidden] { display: none; }
+  .filter-select.is-active { background-color: var(--accent-soft); border-color: var(--accent-soft-line); color: var(--accent); }
+  @media (max-width: 620px) { .filter-select { max-width: 130px; } }
+
+  .date-field { flex-shrink: 0; }
+  .date-input {
+    border: 1px solid var(--line-strong); background: var(--paper-raised); color: var(--ink);
+    border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 700;
+    cursor: pointer; font-family: inherit; letter-spacing: .01em;
+  }
+  .date-input::-webkit-calendar-picker-indicator { filter: var(--date-icon-filter, none); cursor: pointer; }
+  @media (prefers-color-scheme: dark) { .date-input { --date-icon-filter: invert(1); } }
+  :root[data-theme="dark"] .date-input { --date-icon-filter: invert(1); }
+  :root[data-theme="light"] .date-input { --date-icon-filter: none; }
+
   .office-badge {
     font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
     padding: 2px 7px; border-radius: 999px; white-space: nowrap;
@@ -335,9 +359,13 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="searchInput" placeholder="Tìm tài xế, biển số, địa chỉ…" />
       </div>
-      <div class="chip-scroll" id="dateChips"></div>
-      <div class="chip-scroll" id="officeChips"></div>
-      <div class="chip-scroll" id="routeChips"></div>
+      <div class="date-field">
+        <input type="date" id="dateInput" class="date-input num" />
+      </div>
+      <button class="chip" id="dateTodayChip" type="button">Hôm nay</button>
+      <button class="chip" id="dateAllChip" type="button">Tất cả các ngày</button>
+      <select class="filter-select" id="officeSelect" hidden></select>
+      <select class="filter-select" id="routeSelect" hidden></select>
       <span class="status-line" id="statusLine"></span>
     </div>
   </div>
@@ -697,35 +725,33 @@
     ].map(([n, lbl]) => `<div class="summary-cell"><div class="n num">${n}</div><div class="lbl">${lbl}</div></div>`).join("");
   }
 
-  function rebuildDateChips() {
-    const dates = [...new Set(allRecords.map(r => r.date).filter(Boolean))].sort().reverse();
-    const box = el("dateChips");
-    // Always keep "Hôm nay" selectable even before anyone has saved today's chấm công yet —
-    // otherwise the default filter would show 0 chuyến with no obvious way to tell why.
-    const today = todayStr();
-    if (!dates.includes(today)) dates.unshift(today);
-    let html = dates.map(d => `<button class="chip" data-date="${esc(d)}" aria-pressed="${activeDate === d}">${esc(dateChipLabel(d))}</button>`).join("");
-    html += `<button class="chip" data-date="__all__" aria-pressed="${activeDate === null}">Tất cả các ngày</button>`;
-    box.innerHTML = html;
-    box.querySelectorAll(".chip").forEach(btn => btn.addEventListener("click", () => {
-      activeDate = btn.dataset.date === "__all__" ? null : btn.dataset.date;
-      rebuildDateChips();
-      render();
-    }));
+  // A chip-per-ngày row was fine at first but only grows — every day the Sheet ever sees
+  // adds another chip forever, and it gets unreadable within a couple weeks. A calendar
+  // picker (same control the extension itself uses to pick ngày) scales to any amount of
+  // history without cluttering the filter row; "Hôm nay" / "Tất cả các ngày" cover the two
+  // most common jumps as one-click shortcuts alongside it.
+  function syncDateControls() {
+    const input = el("dateInput");
+    if (activeDate !== null) input.value = activeDate;
+    el("dateTodayChip").setAttribute("aria-pressed", String(activeDate === todayStr()));
+    el("dateAllChip").setAttribute("aria-pressed", String(activeDate === null));
   }
 
   function rebuildOfficeChips() {
     const offices = [...new Set(allRecords.map(r => r.office).filter(Boolean))].sort();
-    const box = el("officeChips");
-    if (offices.length < 2) { box.innerHTML = ""; return; } // only one office loaded — nothing to filter
-    let html = `<button class="chip" data-office="__all__" aria-pressed="${activeOffice === null}">Tất cả khu vực</button>`;
-    html += offices.map(o => `<button class="chip" data-office="${esc(o)}" aria-pressed="${activeOffice === o}">${esc(o)}</button>`).join("");
+    const box = el("officeSelect");
+    if (offices.length < 2) { box.hidden = true; return; } // only one office loaded — nothing to filter
+    let html = `<option value="__all__">Tất cả khu vực</option>`;
+    html += offices.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("");
     box.innerHTML = html;
-    box.querySelectorAll(".chip").forEach(btn => btn.addEventListener("click", () => {
-      activeOffice = btn.dataset.office === "__all__" ? null : btn.dataset.office;
+    box.value = activeOffice === null ? "__all__" : activeOffice;
+    box.classList.toggle("is-active", activeOffice !== null);
+    box.hidden = false;
+    box.onchange = () => {
+      activeOffice = box.value === "__all__" ? null : box.value;
       rebuildOfficeChips();
       render();
-    }));
+    };
   }
 
   function rebuildRouteChips() {
@@ -737,22 +763,25 @@
       }
     }
     const routes = [...codes].sort();
-    const box = el("routeChips");
-    if (!routes.length && !hasUnrouted) { box.innerHTML = ""; return; }
-    let html = `<button class="chip" data-route="__all__" aria-pressed="${activeRoute === null}">Tất cả tuyến</button>`;
-    html += routes.map(r => `<button class="chip" data-route="${esc(r)}" aria-pressed="${activeRoute === r}">${esc(r)}</button>`).join("");
-    if (hasUnrouted) html += `<button class="chip" data-route="" aria-pressed="${activeRoute === ""}">Chưa gán tuyến</button>`;
+    const box = el("routeSelect");
+    if (!routes.length && !hasUnrouted) { box.hidden = true; return; }
+    let html = `<option value="__all__">Tất cả tuyến</option>`;
+    html += routes.map(r => `<option value="${esc(r)}">${esc(r)}</option>`).join("");
+    if (hasUnrouted) html += `<option value="">Chưa gán tuyến</option>`;
     box.innerHTML = html;
-    box.querySelectorAll(".chip").forEach(btn => btn.addEventListener("click", () => {
-      activeRoute = btn.dataset.route === "__all__" ? null : btn.dataset.route;
+    box.value = activeRoute === null ? "__all__" : activeRoute;
+    box.classList.toggle("is-active", activeRoute !== null);
+    box.hidden = false;
+    box.onchange = () => {
+      activeRoute = box.value === "__all__" ? null : box.value;
       rebuildRouteChips();
       render();
-    }));
+    };
   }
 
   function loadRecords(rawRecords, sourceLabel) {
     allRecords = dedupeRecords(rawRecords);
-    rebuildDateChips();
+    syncDateControls();
     rebuildOfficeChips();
     rebuildRouteChips();
     render();
@@ -842,6 +871,15 @@
 
   el("searchInput").addEventListener("input", e => { searchTerm = e.target.value.trim(); render(); });
 
+  el("dateInput").addEventListener("change", e => {
+    activeDate = e.target.value || todayStr(); // cleared the field → fall back to today, not "mọi ngày"
+    syncDateControls();
+    render();
+  });
+  el("dateTodayChip").addEventListener("click", () => { activeDate = todayStr(); syncDateControls(); render(); });
+  el("dateAllChip").addEventListener("click", () => { activeDate = null; syncDateControls(); render(); });
+
+  syncDateControls(); // seed the <input type="date"> with today before any data has loaded
   loadAllSources(); // auto-load both offices on open — no manual "chọn khu vực" step
   render();
 })();
